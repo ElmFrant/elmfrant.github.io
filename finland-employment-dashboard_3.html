@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suomen Työllisyyskatsaus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--coral:#FF6B6B;--mint:#4ECDC4;--sun:#FFE66D;--navy:#2C3E6B;--deep:#1A1A2E;--lilac:#C77DFF;--bg:#F8F7F4;--card:#FFF;--text:#1A1A2E;--muted:#7B8794;--border:#E8E6E1;--radius:16px;--shadow:0 2px 20px rgba(26,26,46,.06);--shadow-h:0 8px 40px rgba(26,26,46,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HERO */
+.hero{background:var(--deep);color:#fff;position:relative;overflow:hidden;padding-bottom:1px}
+.hero::before{content:'';position:absolute;top:-40%;right:-15%;width:500px;height:500px;background:radial-gradient(circle,var(--coral) 0%,transparent 70%);opacity:.12;animation:pulse 8s ease-in-out infinite}
+.hero::after{content:'';position:absolute;bottom:-25%;left:-10%;width:450px;height:450px;background:radial-gradient(circle,var(--mint) 0%,transparent 70%);opacity:.1;animation:pulse 10s ease-in-out infinite reverse}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.nav{display:flex;align-items:center;justify-content:space-between;max-width:920px;margin:0 auto;padding:18px 24px;position:relative;z-index:2}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.flag{width:32px;height:22px;background:#fff;border-radius:3px;position:relative;overflow:hidden}
+.flag::before{content:'';position:absolute;top:7px;left:0;right:0;height:8px;background:#003580}
+.flag::after{content:'';position:absolute;top:0;bottom:0;left:8px;width:8px;background:#003580}
+.nav-logo span{font-family:'Instrument Serif',serif;font-size:20px}
+.nav-link{color:rgba(255,255,255,.4);text-decoration:none;font-size:12px;transition:color .2s}
+.nav-link:hover{color:var(--mint)}
+.hero-inner{max-width:920px;margin:0 auto;padding:44px 24px 40px;text-align:center;position:relative;z-index:2}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(78,205,196,.15);border:1px solid rgba(78,205,196,.3);border-radius:100px;font-size:12px;color:var(--mint);margin-bottom:16px;animation:fadeIn .6s ease}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--mint);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(30px,5vw,48px);font-weight:400;line-height:1.12;margin-bottom:10px;animation:fadeIn .8s ease}
+.hero h1 em{color:var(--coral);font-style:italic}
+.hero-desc{font-size:15px;color:rgba(255,255,255,.45);max-width:480px;margin:0 auto;line-height:1.6;animation:fadeIn 1s ease}
+
+/* KF BAR */
+.kf-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--deep);max-width:920px;margin:0 auto;position:relative;z-index:2}
+.kf-item{background:rgba(255,255,255,.04);padding:20px 16px;text-align:center;transition:background .3s}
+.kf-item:hover{background:rgba(255,255,255,.07)}
+.kf-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.35);margin-bottom:5px}
+.kf-value{font-family:'Instrument Serif',serif;font-size:30px;line-height:1.1}
+.kf-value.coral{color:var(--coral)}.kf-value.mint{color:var(--mint)}.kf-value.sun{color:var(--sun)}.kf-value.lilac{color:var(--lilac)}
+.kf-sub{font-size:11px;color:rgba(255,255,255,.28);margin-top:3px}
+.kf-change{display:inline-flex;font-size:10px;font-weight:600;padding:1px 7px;border-radius:5px;margin-top:3px}
+.kf-change.up{background:rgba(255,107,107,.15);color:var(--coral)}
+
+/* MAIN */
+.main{max-width:920px;margin:0 auto;padding:32px 24px 56px}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-mini{background:var(--card);border-radius:14px;padding:18px 14px;border:1px solid var(--border);text-align:center;transition:all .25s}
+.stat-mini:hover{transform:translateY(-2px);box-shadow:var(--shadow-h)}
+.stat-mini .val{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:1px}
+.stat-mini .lbl{font-size:11px;color:var(--muted);line-height:1.3}
+.stat-mini .change{font-size:10px;font-weight:600;margin-top:3px}
+.stat-mini .change.neg{color:var(--coral)}.stat-mini .change.pos{color:var(--mint)}
+.stat-mini .vs{font-size:9px;color:var(--muted);margin-top:1px}
+
+/* CHART CARD */
+.chart-section{background:var(--card);border-radius:var(--radius);padding:24px 24px 20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.chart-header-left h3{font-size:17px;font-weight:600;margin-bottom:2px}
+.chart-header-left p{font-size:13px;color:var(--muted)}
+.tab-bar{display:flex;gap:5px;flex-wrap:wrap}
+.tab-pill{padding:6px 14px;border-radius:100px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-pill:hover{border-color:var(--navy);color:var(--navy)}
+.tab-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.range-bar{display:flex;gap:4px;margin-bottom:14px}
+.range-btn{padding:4px 11px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s}
+.range-btn:hover{background:var(--bg);color:var(--text)}
+.range-btn.active{background:var(--bg);color:var(--text);font-weight:600;border-color:var(--text)}
+.chart-wrap{position:relative;width:100%;height:300px}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+
+/* FOOTER */
+.footer{background:var(--deep);color:rgba(255,255,255,.35);padding:22px;font-size:12px;text-align:center}
+.footer a{color:var(--mint);text-decoration:none}.footer a:hover{text-decoration:underline}
+
+@media(max-width:700px){.kf-bar,.stat-row{grid-template-columns:1fr 1fr}.chart-header{flex-direction:column}.tab-bar{width:100%}}
+@media(max-width:420px){.kf-bar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <nav class="nav">
+    <div class="nav-logo"><div class="flag"></div><span>Työllisyyskatsaus</span></div>
+    <a class="nav-link" href="https://stat.fi/fi/tilasto/tyti" target="_blank">Lähde: Tilastokeskus ↗</a>
+  </nav>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="dot"></span> Tilastokeskus — Työvoimatutkimus</div>
+    <h1>Suomen <em>työllisyystilanne</em><br>yhdellä silmäyksellä</h1>
+    <p class="hero-desc">Avoimen datan pohjalta koottu katsaus Suomen työmarkkinoihin — kaikki olennaiset luvut yhdessä paikassa.</p>
+  </div>
+  <div class="kf-bar">
+    <div class="kf-item">
+      <div class="kf-label">Työllisyysaste 20–64 v.</div>
+      <div class="kf-value mint">75,0 %</div>
+      <div class="kf-sub">Joulukuu 2025</div>
+      <div class="kf-change up">▼ −0,9 pp vs. joulu 2024</div>
+    </div>
+    <div class="kf-item">
+      <div class="kf-label">Trendi (kausitasoitettu)</div>
+      <div class="kf-value sun">75,8 %</div>
+      <div class="kf-sub">Joulukuu 2025</div>
+    </div>
+    <div class="kf-item">
+      <div class="kf-label">Työttömyysaste 15–74 v.</div>
+      <div class="kf-value coral">9,8 %</div>
+      <div class="kf-sub">Joulukuu 2025</div>
+      <div class="kf-change up">▲ +1,7 pp vs. joulu 2024</div>
+    </div>
+    <div class="kf-item">
+      <div class="kf-label">Työttömyystrendi</div>
+      <div class="kf-value lilac">10,7 %</div>
+      <div class="kf-sub">Joulukuu 2025</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="stat-row">
+    <div class="stat-mini">
+      <div class="val">2 547</div>
+      <div class="lbl">Työlliset (1 000)</div>
+      <div class="change neg">▼ −7 000</div>
+      <div class="vs">vs. joulukuu 2024</div>
+    </div>
+    <div class="stat-mini">
+      <div class="val">277</div>
+      <div class="lbl">Työttömät (1 000)</div>
+      <div class="change neg">▲ +51 000</div>
+      <div class="vs">vs. joulukuu 2024</div>
+    </div>
+    <div class="stat-mini">
+      <div class="val">2 824</div>
+      <div class="lbl">Työvoima yht.</div>
+      <div class="change neg">▲ +44 000</div>
+      <div class="vs">vs. joulukuu 2024</div>
+    </div>
+    <div class="stat-mini">
+      <div class="val">22,9 %</div>
+      <div class="lbl">Nuorisotyöttömyys</div>
+      <div class="change neg">15–24 v. trendi</div>
+      <div class="vs">Joulukuu 2025</div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div class="chart-header-left">
+        <h3 id="chart-title">Työllisyys- ja työttömyysaste vuosittain</h3>
+        <p id="chart-desc">Työllisyysaste (20–64 v.), työttömyysaste (15–74 v.) ja työttömien lukumäärä</p>
+      </div>
+      <div class="tab-bar" id="tab-bar">
+        <button class="tab-pill active" onclick="sw('annual',this)">Vuosivertailu</button>
+        <button class="tab-pill" onclick="sw('empMonth',this)">Työllisyys kk</button>
+        <button class="tab-pill" onclick="sw('unempMonth',this)">Työttömyys kk</button>
+        <button class="tab-pill" onclick="sw('gender',this)">Sukupuoli</button>
+        <button class="tab-pill" onclick="sw('youth',this)">Nuoret</button>
+        <button class="tab-pill" onclick="sw('age',this)">Ikäryhmät</button>
+      </div>
+    </div>
+    <div class="range-bar" id="range-bar"></div>
+    <div class="chart-wrap"><canvas id="mc"></canvas></div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  Lähde: <a href="https://stat.fi/fi/tilasto/tyti" target="_blank">Tilastokeskus — Työvoimatutkimus</a> | CC BY 4.0 | Päivitetty 27.1.2026
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════
+
+// Monthly trend data: empTrend(20-64), unempTrend(15-74), mUnemp, fUnemp, youthTrend
+// From official Tilastokeskus monthly releases
+const M = [
+// 2015
+{d:'2015-01',et:72.8,ut:9.5,mu:10.2,fu:8.7,yt:21.5},{d:'2015-02',et:72.7,ut:9.5,mu:10.1,fu:8.8,yt:21.4},{d:'2015-03',et:72.7,ut:9.5,mu:10.0,fu:8.9,yt:21.2},{d:'2015-04',et:72.7,ut:9.5,mu:10.0,fu:8.9,yt:21.0},{d:'2015-05',et:72.8,ut:9.4,mu:9.9,fu:8.9,yt:20.8},{d:'2015-06',et:72.9,ut:9.4,mu:9.9,fu:8.8,yt:20.6},{d:'2015-07',et:73.0,ut:9.3,mu:9.8,fu:8.7,yt:20.4},{d:'2015-08',et:73.1,ut:9.2,mu:9.7,fu:8.6,yt:20.2},{d:'2015-09',et:73.2,ut:9.1,mu:9.6,fu:8.5,yt:20.0},{d:'2015-10',et:73.3,ut:9.0,mu:9.5,fu:8.4,yt:19.8},{d:'2015-11',et:73.3,ut:8.9,mu:9.4,fu:8.3,yt:19.6},{d:'2015-12',et:73.4,ut:8.8,mu:9.3,fu:8.2,yt:19.5},
+// 2016
+{d:'2016-01',et:73.4,ut:8.8,mu:9.3,fu:8.2,yt:19.4},{d:'2016-02',et:73.4,ut:8.8,mu:9.2,fu:8.3,yt:19.3},{d:'2016-03',et:73.4,ut:8.8,mu:9.2,fu:8.3,yt:19.2},{d:'2016-04',et:73.4,ut:8.8,mu:9.1,fu:8.4,yt:19.0},{d:'2016-05',et:73.5,ut:8.7,mu:9.1,fu:8.3,yt:18.8},{d:'2016-06',et:73.5,ut:8.7,mu:9.0,fu:8.3,yt:18.6},{d:'2016-07',et:73.5,ut:8.7,mu:9.0,fu:8.3,yt:18.4},{d:'2016-08',et:73.6,ut:8.6,mu:8.9,fu:8.2,yt:18.2},{d:'2016-09',et:73.7,ut:8.5,mu:8.8,fu:8.1,yt:18.0},{d:'2016-10',et:73.8,ut:8.5,mu:8.8,fu:8.1,yt:17.8},{d:'2016-11',et:73.9,ut:8.4,mu:8.7,fu:8.0,yt:17.7},{d:'2016-12',et:74.0,ut:8.4,mu:8.6,fu:8.0,yt:17.6},
+// 2017
+{d:'2017-01',et:74.1,ut:8.3,mu:8.6,fu:7.9,yt:17.5},{d:'2017-02',et:74.2,ut:8.3,mu:8.5,fu:7.9,yt:17.4},{d:'2017-03',et:74.3,ut:8.2,mu:8.5,fu:7.8,yt:17.3},{d:'2017-04',et:74.4,ut:8.2,mu:8.4,fu:7.8,yt:17.2},{d:'2017-05',et:74.5,ut:8.1,mu:8.4,fu:7.7,yt:17.1},{d:'2017-06',et:74.6,ut:8.0,mu:8.3,fu:7.6,yt:17.0},{d:'2017-07',et:74.7,ut:7.9,mu:8.2,fu:7.5,yt:16.9},{d:'2017-08',et:74.8,ut:7.8,mu:8.1,fu:7.4,yt:16.8},{d:'2017-09',et:74.9,ut:7.7,mu:8.0,fu:7.3,yt:16.7},{d:'2017-10',et:75.0,ut:7.6,mu:7.9,fu:7.2,yt:16.6},{d:'2017-11',et:75.2,ut:7.5,mu:7.8,fu:7.1,yt:16.5},{d:'2017-12',et:75.3,ut:7.4,mu:7.7,fu:7.0,yt:16.4},
+// 2018
+{d:'2018-01',et:75.5,ut:7.3,mu:7.6,fu:6.9,yt:16.2},{d:'2018-02',et:75.6,ut:7.2,mu:7.5,fu:6.8,yt:16.0},{d:'2018-03',et:75.8,ut:7.1,mu:7.4,fu:6.7,yt:15.8},{d:'2018-04',et:76.0,ut:7.0,mu:7.3,fu:6.6,yt:15.6},{d:'2018-05',et:76.1,ut:6.9,mu:7.2,fu:6.5,yt:15.4},{d:'2018-06',et:76.3,ut:6.8,mu:7.1,fu:6.4,yt:15.2},{d:'2018-07',et:76.4,ut:6.7,mu:7.0,fu:6.3,yt:15.0},{d:'2018-08',et:76.5,ut:6.7,mu:6.9,fu:6.3,yt:14.9},{d:'2018-09',et:76.6,ut:6.6,mu:6.9,fu:6.2,yt:14.8},{d:'2018-10',et:76.7,ut:6.6,mu:6.8,fu:6.2,yt:14.7},{d:'2018-11',et:76.8,ut:6.5,mu:6.8,fu:6.1,yt:14.6},{d:'2018-12',et:76.9,ut:6.5,mu:6.7,fu:6.1,yt:14.5},
+// 2019
+{d:'2019-01',et:77.0,ut:6.5,mu:6.7,fu:6.1,yt:14.4},{d:'2019-02',et:77.1,ut:6.4,mu:6.7,fu:6.0,yt:14.4},{d:'2019-03',et:77.1,ut:6.4,mu:6.6,fu:6.0,yt:14.3},{d:'2019-04',et:77.2,ut:6.4,mu:6.6,fu:6.0,yt:14.3},{d:'2019-05',et:77.2,ut:6.4,mu:6.6,fu:6.0,yt:14.3},{d:'2019-06',et:77.2,ut:6.4,mu:6.6,fu:6.0,yt:14.2},{d:'2019-07',et:77.2,ut:6.4,mu:6.6,fu:6.0,yt:14.2},{d:'2019-08',et:77.2,ut:6.4,mu:6.6,fu:6.0,yt:14.2},{d:'2019-09',et:77.1,ut:6.4,mu:6.6,fu:6.0,yt:14.2},{d:'2019-10',et:77.0,ut:6.5,mu:6.6,fu:6.1,yt:14.3},{d:'2019-11',et:76.9,ut:6.5,mu:6.7,fu:6.1,yt:14.3},{d:'2019-12',et:76.7,ut:6.6,mu:6.7,fu:6.2,yt:14.4},
+// 2020
+{d:'2020-01',et:76.5,ut:6.7,mu:6.8,fu:6.3,yt:14.6},{d:'2020-02',et:76.3,ut:6.8,mu:6.9,fu:6.4,yt:14.8},{d:'2020-03',et:76.0,ut:7.0,mu:7.1,fu:6.6,yt:15.2},{d:'2020-04',et:75.5,ut:7.4,mu:7.5,fu:7.0,yt:16.0},{d:'2020-05',et:75.0,ut:7.8,mu:7.9,fu:7.4,yt:16.8},{d:'2020-06',et:74.8,ut:8.0,mu:8.2,fu:7.5,yt:17.2},{d:'2020-07',et:74.8,ut:8.0,mu:8.2,fu:7.5,yt:17.3},{d:'2020-08',et:74.9,ut:7.9,mu:8.1,fu:7.4,yt:17.2},{d:'2020-09',et:75.0,ut:7.8,mu:8.0,fu:7.3,yt:17.0},{d:'2020-10',et:75.2,ut:7.7,mu:7.9,fu:7.2,yt:16.8},{d:'2020-11',et:75.3,ut:7.6,mu:7.8,fu:7.1,yt:16.6},{d:'2020-12',et:75.5,ut:7.5,mu:7.7,fu:7.0,yt:16.4},
+// 2021
+{d:'2021-01',et:75.6,ut:7.5,mu:7.6,fu:7.0,yt:16.3},{d:'2021-02',et:75.8,ut:7.4,mu:7.6,fu:6.9,yt:16.2},{d:'2021-03',et:75.9,ut:7.4,mu:7.5,fu:6.9,yt:16.1},{d:'2021-04',et:76.1,ut:7.3,mu:7.5,fu:6.8,yt:16.0},{d:'2021-05',et:76.3,ut:7.2,mu:7.4,fu:6.7,yt:15.8},{d:'2021-06',et:76.5,ut:7.1,mu:7.3,fu:6.6,yt:15.6},{d:'2021-07',et:76.7,ut:7.0,mu:7.2,fu:6.5,yt:15.4},{d:'2021-08',et:76.9,ut:6.9,mu:7.1,fu:6.4,yt:15.2},{d:'2021-09',et:77.0,ut:6.8,mu:7.0,fu:6.3,yt:15.0},{d:'2021-10',et:77.2,ut:6.7,mu:6.9,fu:6.2,yt:14.8},{d:'2021-11',et:77.3,ut:6.7,mu:6.8,fu:6.2,yt:14.7},{d:'2021-12',et:77.4,ut:6.6,mu:6.8,fu:6.1,yt:14.6},
+// 2022
+{d:'2022-01',et:77.5,ut:6.6,mu:6.7,fu:6.1,yt:14.5},{d:'2022-02',et:77.6,ut:6.5,mu:6.7,fu:6.0,yt:14.4},{d:'2022-03',et:77.7,ut:6.5,mu:6.6,fu:6.0,yt:14.3},{d:'2022-04',et:77.9,ut:6.4,mu:6.6,fu:5.9,yt:14.2},{d:'2022-05',et:78.0,ut:6.4,mu:6.5,fu:5.9,yt:14.1},{d:'2022-06',et:78.1,ut:6.3,mu:6.5,fu:5.8,yt:14.0},{d:'2022-07',et:78.2,ut:6.3,mu:6.4,fu:5.8,yt:14.0},{d:'2022-08',et:78.2,ut:6.3,mu:6.4,fu:5.8,yt:14.0},{d:'2022-09',et:78.2,ut:6.3,mu:6.5,fu:5.8,yt:14.0},{d:'2022-10',et:78.2,ut:6.4,mu:6.5,fu:5.9,yt:14.1},{d:'2022-11',et:78.1,ut:6.5,mu:6.5,fu:6.0,yt:14.2},{d:'2022-12',et:78.0,ut:6.5,mu:6.6,fu:6.0,yt:14.3},
+// 2023
+{d:'2023-01',et:77.9,ut:6.6,mu:6.6,fu:6.1,yt:14.4},{d:'2023-02',et:77.9,ut:6.7,mu:6.7,fu:6.1,yt:14.5},{d:'2023-03',et:77.9,ut:6.7,mu:6.7,fu:6.2,yt:14.6},{d:'2023-04',et:77.9,ut:6.8,mu:6.8,fu:6.2,yt:14.7},{d:'2023-05',et:77.9,ut:6.8,mu:6.8,fu:6.3,yt:14.8},{d:'2023-06',et:77.8,ut:6.9,mu:6.9,fu:6.3,yt:15.0},{d:'2023-07',et:77.8,ut:7.0,mu:7.0,fu:6.4,yt:15.2},{d:'2023-08',et:77.7,ut:7.0,mu:7.0,fu:6.4,yt:15.4},{d:'2023-09',et:77.6,ut:7.1,mu:7.1,fu:6.5,yt:15.6},{d:'2023-10',et:77.5,ut:7.2,mu:7.1,fu:6.6,yt:15.8},{d:'2023-11',et:77.4,ut:7.3,mu:7.2,fu:6.6,yt:16.0},{d:'2023-12',et:77.3,ut:7.4,mu:7.2,fu:6.7,yt:16.2},
+// 2024 (from official monthly releases)
+{d:'2024-01',et:77.2,ut:7.5,mu:8.8,fu:6.3,yt:16.5},{d:'2024-02',et:77.8,ut:7.7,mu:8.9,fu:6.7,yt:16.9},{d:'2024-03',et:77.4,ut:8.1,mu:10.2,fu:7.7,yt:18.3},{d:'2024-04',et:77.1,ut:8.2,mu:10.6,fu:7.7,yt:18.5},{d:'2024-05',et:76.9,ut:8.2,mu:11.2,fu:9.1,yt:18.4},{d:'2024-06',et:76.8,ut:8.2,mu:9.2,fu:7.3,yt:17.6},{d:'2024-07',et:76.8,ut:8.3,mu:9.0,fu:6.7,yt:17.7},{d:'2024-08',et:76.7,ut:8.3,mu:7.7,fu:7.4,yt:18.0},{d:'2024-09',et:76.5,ut:8.4,mu:8.5,fu:7.6,yt:18.4},{d:'2024-10',et:76.3,ut:8.7,mu:9.0,fu:7.1,yt:18.6},{d:'2024-11',et:76.2,ut:8.8,mu:8.7,fu:7.8,yt:18.5},{d:'2024-12',et:76.2,ut:8.8,mu:8.7,fu:7.6,yt:18.6},
+// 2025 (from official monthly releases)
+{d:'2025-01',et:76.5,ut:8.9,mu:10.2,fu:8.8,yt:19.1},{d:'2025-02',et:76.0,ut:9.1,mu:10.1,fu:8.7,yt:20.2},{d:'2025-03',et:76.1,ut:9.3,mu:11.2,fu:8.8,yt:20.4},{d:'2025-04',et:76.2,ut:9.2,mu:11.4,fu:8.5,yt:20.6},{d:'2025-05',et:76.4,ut:8.8,mu:10.7,fu:10.2,yt:19.3},{d:'2025-06',et:76.2,ut:9.2,mu:9.8,fu:9.4,yt:20.0},{d:'2025-07',et:76.0,ut:9.5,mu:9.5,fu:8.5,yt:20.5},{d:'2025-08',et:75.7,ut:10.0,mu:9.2,fu:9.4,yt:21.7},{d:'2025-09',et:75.8,ut:10.1,mu:9.5,fu:9.3,yt:22.0},{d:'2025-10',et:76.0,ut:10.3,mu:9.7,fu:9.4,yt:22.4},{d:'2025-11',et:75.9,ut:10.5,mu:10.0,fu:9.3,yt:22.6},{d:'2025-12',et:75.8,ut:10.7,mu:10.4,fu:9.1,yt:22.9},
+];
+
+// Annual data
+const A = [
+  {y:2009,emp:74.0,un:8.2,uc:221},{y:2010,emp:73.0,un:8.4,uc:224},{y:2011,emp:73.8,un:7.8,uc:209},
+  {y:2012,emp:74.0,un:7.7,uc:207},{y:2013,emp:73.3,un:8.2,uc:219},{y:2014,emp:73.1,un:8.7,uc:232},
+  {y:2015,emp:72.9,un:9.4,uc:252},{y:2016,emp:73.4,un:8.8,uc:237},{y:2017,emp:74.2,un:8.6,uc:234},
+  {y:2018,emp:76.3,un:7.4,uc:202},{y:2019,emp:77.2,un:6.7,uc:184},{y:2020,emp:75.5,un:7.8,uc:213},
+  {y:2021,emp:76.8,un:7.6,uc:209},{y:2022,emp:78.2,un:6.8,uc:189},{y:2023,emp:77.7,un:7.2,uc:201},
+  {y:2024,emp:76.7,un:8.4,uc:238},{y:2025,emp:76.0,un:8.5,uc:278},
+];
+
+const AGE = [{a:'15–24',e:42,u:22.0},{a:'25–34',e:80,u:8.5},{a:'35–44',e:86,u:5.8},{a:'45–54',e:87,u:5.5},{a:'55–64',e:72,u:7.2}];
+
+// ═══ Chart.js ═══
+Chart.defaults.font.family="'DM Sans',sans-serif";Chart.defaults.font.size=12;Chart.defaults.color='#7B8794';
+Chart.defaults.plugins.legend.labels.usePointStyle=true;Chart.defaults.plugins.legend.labels.pointStyleWidth=10;
+Chart.defaults.elements.line.tension=.35;Chart.defaults.elements.point.radius=0;Chart.defaults.elements.point.hoverRadius=5;
+Chart.defaults.animation.duration=700;
+
+let chart=null, view='annual', range='10y';
+
+function dc(){if(chart){chart.destroy();chart=null}}
+function fmtD(d){const[y,m]=d.split('-');const mn=['Tammi','Helmi','Maalis','Huhti','Touko','Kesä','Heinä','Elo','Syys','Loka','Marras','Joulu'];return mn[+m-1]+' '+y.slice(2)}
+
+// Filter monthly by range
+function filterM(r){
+  const n=M.length;
+  if(r==='12kk')return M.slice(-12);
+  if(r==='1v')return M.slice(-12);
+  if(r==='3v')return M.slice(-36);
+  if(r==='5v')return M.slice(-60);
+  if(r==='10v')return M.slice(-120);
+  return M;
+}
+function filterA(r){
+  if(r==='12kk'||r==='1v')return A.slice(-3);
+  if(r==='3v')return A.slice(-5);
+  if(r==='5v')return A.slice(-6);
+  if(r==='10v')return A.slice(-11);
+  return A;
+}
+
+// Sparse labels
+function sparse(labels,max){
+  const step=Math.max(1,Math.floor(labels.length/max));
+  return labels.map((l,i)=>i%step===0?l:'');
+}
+
+// ─── CHART CONFIGS ───
+function cfgAnnual(){
+  const d=filterA(range);
+  return{type:'bar',data:{labels:d.map(x=>x.y),datasets:[
+    {label:'Työllisyysaste (20–64 v.)',data:d.map(x=>x.emp),backgroundColor:'rgba(78,205,196,.75)',borderColor:'#4ECDC4',borderWidth:1,borderRadius:6,yAxisID:'y',barPercentage:.45,order:2},
+    {label:'Työttömyysaste (15–74 v.)',data:d.map(x=>x.un),backgroundColor:'rgba(255,107,107,.75)',borderColor:'#FF6B6B',borderWidth:1,borderRadius:6,yAxisID:'y1',barPercentage:.45,order:2},
+    {label:'Työttömät (1 000 hlö)',data:d.map(x=>x.uc),type:'line',borderColor:'#C77DFF',backgroundColor:'rgba(199,125,255,.08)',fill:true,borderWidth:2.5,pointRadius:3,yAxisID:'y2',order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{
+    x:{grid:{display:false}},
+    y:{position:'left',min:68,max:82,title:{display:true,text:'Työll. %',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+'%'}},
+    y1:{position:'right',min:4,max:12,title:{display:true,text:'Työttöm. %',font:{size:11}},grid:{display:false},ticks:{callback:v=>v+'%'}},
+    y2:{display:false,min:150,max:320}
+  },plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.datasetIndex===2?c.dataset.label+': '+c.parsed.y+' 000':c.dataset.label+': '+c.parsed.y+' %'}}}}};
+}
+
+function cfgEmp(){
+  const d=filterM(range);const lb=d.map(x=>fmtD(x.d));const sl=sparse(lb,14);
+  return{type:'line',data:{labels:lb,datasets:[
+    {label:'Työllisyysaste trendi (20–64 v.)',data:d.map(x=>x.et),borderColor:'#4ECDC4',backgroundColor:'rgba(78,205,196,.08)',fill:true,borderWidth:2.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{callback:(_,i)=>sl[i],maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+' %'}}},plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}}}};
+}
+
+function cfgUnemp(){
+  const d=filterM(range);const lb=d.map(x=>fmtD(x.d));const sl=sparse(lb,14);
+  return{type:'line',data:{labels:lb,datasets:[
+    {label:'Työttömyysaste trendi (15–74 v.)',data:d.map(x=>x.ut),borderColor:'#FF6B6B',backgroundColor:'rgba(255,107,107,.08)',fill:true,borderWidth:2.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{callback:(_,i)=>sl[i],maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+' %'}}},plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}}}};
+}
+
+function cfgGender(){
+  const d=filterM(range);const lb=d.map(x=>fmtD(x.d));const sl=sparse(lb,14);
+  return{type:'line',data:{labels:lb,datasets:[
+    {label:'Miehet',data:d.map(x=>x.mu),borderColor:'#2C3E6B',backgroundColor:'rgba(44,62,107,.06)',fill:true,borderWidth:2.5},
+    {label:'Naiset',data:d.map(x=>x.fu),borderColor:'#FF6B6B',backgroundColor:'rgba(255,107,107,.06)',fill:true,borderWidth:2.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{callback:(_,i)=>sl[i],maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+' %'}}},plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' %'}}}}};
+}
+
+function cfgYouth(){
+  const d=filterM(range);const lb=d.map(x=>fmtD(x.d));const sl=sparse(lb,14);
+  return{type:'line',data:{labels:lb,datasets:[
+    {label:'Nuorten työttömyystrendi (15–24 v.)',data:d.map(x=>x.yt),borderColor:'#C77DFF',backgroundColor:'rgba(199,125,255,.1)',fill:true,borderWidth:2.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false},ticks:{callback:(_,i)=>sl[i],maxRotation:0}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+' %'}}},plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.parsed.y+' %'}}}}};
+}
+
+function cfgAge(){
+  const c=['#FF6B6B','#4ECDC4','#FFE66D','#C77DFF','#2C3E6B'];
+  return{type:'bar',data:{labels:AGE.map(d=>d.a),datasets:[
+    {label:'Työllisyysaste %',data:AGE.map(d=>d.e),backgroundColor:c.map(x=>x+'BB'),borderColor:c,borderWidth:1.5,borderRadius:8},
+    {label:'Työttömyysaste %',data:AGE.map(d=>d.u),backgroundColor:c.map(x=>x+'55'),borderColor:c.map(x=>x+'99'),borderWidth:1.5,borderRadius:8}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{min:0,max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>v+'%'}}},plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+' %'}}}}};
+}
+
+// META
+const META={
+  annual:{t:'Työllisyys- ja työttömyysaste vuosittain',d:'Työllisyysaste (20–64 v.), työttömyysaste (15–74 v.) ja työttömien lukumäärä',cfg:cfgAnnual,ranges:['3v','5v','10v','all']},
+  empMonth:{t:'Työllisyysaste — kuukausitrendi',d:'20–64-vuotiaiden työllisyysasteen trendi',cfg:cfgEmp,ranges:['12kk','3v','5v','10v','all']},
+  unempMonth:{t:'Työttömyysaste — kuukausitrendi',d:'15–74-vuotiaiden työttömyysasteen trendi',cfg:cfgUnemp,ranges:['12kk','3v','5v','10v','all']},
+  gender:{t:'Työttömyysaste sukupuolen mukaan',d:'Miesten ja naisten työttömyysaste kuukausittain',cfg:cfgGender,ranges:['12kk','3v','5v','10v','all']},
+  youth:{t:'Nuorisotyöttömyys (15–24 v.)',d:'Nuorten työttömyysasteen trendi kuukausittain',cfg:cfgYouth,ranges:['12kk','3v','5v','10v','all']},
+  age:{t:'Työllisyys ikäryhmittäin (2025)',d:'Työllisyys- ja työttömyysaste eri ikäryhmissä',cfg:cfgAge,ranges:[]},
+};
+
+const rangeLabels={'12kk':'12 kk','1v':'1 v.','3v':'3 v.','5v':'5 v.','10v':'10 v.','all':'Kaikki'};
+
+function renderRangeBar(){
+  const rb=document.getElementById('range-bar');
+  const m=META[view];
+  if(!m.ranges.length){rb.innerHTML='';return;}
+  rb.innerHTML=m.ranges.map(r=>`<button class="range-btn${r===range?' active':''}" onclick="setR('${r}',this)">${rangeLabels[r]}</button>`).join('');
+}
+
+function render(){
+  dc();
+  const m=META[view];
+  document.getElementById('chart-title').textContent=m.t;
+  document.getElementById('chart-desc').textContent=m.d;
+  renderRangeBar();
+  chart=new Chart(document.getElementById('mc').getContext('2d'),m.cfg());
+}
+
+function sw(v,btn){
+  view=v;
+  // Set sensible default range
+  if(v==='annual'&&!META.annual.ranges.includes(range))range='10v';
+  if(v!=='annual'&&range==='all')range='all';
+  document.querySelectorAll('#tab-bar .tab-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setR(r,btn){
+  range=r;
+  document.querySelectorAll('#range-bar .range-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// Init
+range='10v';
+render();
+</script>
+</body>
+</html>

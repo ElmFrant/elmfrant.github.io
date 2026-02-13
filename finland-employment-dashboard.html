@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finland Employment Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --coral: #FF6B6B;
+    --mint: #4ECDC4;
+    --sun: #FFE66D;
+    --navy: #2C3E6B;
+    --deep: #1A1A2E;
+    --lilac: #C77DFF;
+    --peach: #FFADAD;
+    --sky: #A8DADC;
+    --bg: #F8F7F4;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --muted: #7B8794;
+    --border: #E8E6E1;
+    --radius: 16px;
+    --shadow: 0 2px 20px rgba(26,26,46,0.06);
+    --shadow-hover: 0 8px 40px rgba(26,26,46,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER / HERO ─── */
+  .hero {
+    background: var(--deep);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--coral) 0%, transparent 70%);
+    opacity: 0.15;
+    animation: pulse 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--mint) 0%, transparent 70%);
+    opacity: 0.12;
+    animation: pulse 10s ease-in-out infinite reverse;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .nav-logo .flag {
+    width: 36px;
+    height: 24px;
+    background: white;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .nav-logo .flag::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 0; right: 0;
+    height: 8px;
+    background: #003580;
+  }
+  .nav-logo .flag::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 10px;
+    width: 8px;
+    background: #003580;
+  }
+  .nav-logo span {
+    font-family: 'Instrument Serif', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+  .nav-pills {
+    display: flex;
+    gap: 6px;
+  }
+  .nav-pill {
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-pill:hover, .nav-pill.active {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-color: rgba(255,255,255,0.3);
+  }
+  .nav-pill.active { background: var(--coral); border-color: var(--coral); color: white; }
+
+  .hero-content {
+    padding: 60px 48px 50px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(78,205,196,0.15);
+    border: 1px solid rgba(78,205,196,0.3);
+    border-radius: 100px;
+    font-size: 13px;
+    color: var(--mint);
+    margin-bottom: 20px;
+    animation: fadeIn 0.6s ease;
+  }
+  .hero-badge .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--mint);
+    animation: blink 2s infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    animation: fadeIn 0.8s ease;
+  }
+  .hero h1 em {
+    color: var(--coral);
+    font-style: italic;
+  }
+  .hero p {
+    font-size: 17px;
+    color: rgba(255,255,255,0.55);
+    max-width: 520px;
+    line-height: 1.6;
+    animation: fadeIn 1s ease;
+  }
+
+  /* ─── KEY FIGURES BAR ─── */
+  .kf-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px;
+    background: var(--deep);
+    position: relative;
+    z-index: 2;
+  }
+  .kf-item {
+    background: rgba(255,255,255,0.04);
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.3s;
+    cursor: default;
+  }
+  .kf-item:hover { background: rgba(255,255,255,0.07); }
+  .kf-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.4);
+  }
+  .kf-value {
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    color: white;
+  }
+  .kf-value.coral { color: var(--coral); }
+  .kf-value.mint { color: var(--mint); }
+  .kf-value.sun { color: var(--sun); }
+  .kf-value.lilac { color: var(--lilac); }
+  .kf-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+  .kf-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+    width: fit-content;
+  }
+  .kf-change.up { background: rgba(255,107,107,0.15); color: var(--coral); }
+  .kf-change.down { background: rgba(78,205,196,0.15); color: var(--mint); }
+  .kf-change.neutral { background: rgba(255,230,109,0.15); color: var(--sun); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 48px 80px;
+  }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 28px;
+  }
+
+  /* ─── CARD GRID ─── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: box-shadow 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+  .card-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+  .card-tag.coral { background: rgba(255,107,107,0.12); color: var(--coral); }
+  .card-tag.mint { background: rgba(78,205,196,0.12); color: #2BA89E; }
+  .card-tag.lilac { background: rgba(199,125,255,0.12); color: var(--lilac); }
+  .card-tag.sun { background: rgba(255,230,109,0.15); color: #C4A800; }
+  .card-tag.navy { background: rgba(44,62,107,0.1); color: var(--navy); }
+  .card h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .card .card-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .card canvas {
+    width: 100% !important;
+  }
+
+  /* ─── FULL WIDTH CHART ─── */
+  .full-card {
+    grid-column: 1 / -1;
+  }
+
+  /* ─── STAT MINI CARDS ─── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-mini {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .stat-mini:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+  }
+  .stat-mini .icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 20px;
+  }
+  .stat-mini .icon.coral { background: rgba(255,107,107,0.12); }
+  .stat-mini .icon.mint { background: rgba(78,205,196,0.12); }
+  .stat-mini .icon.sun { background: rgba(255,230,109,0.15); }
+  .stat-mini .icon.lilac { background: rgba(199,125,255,0.12); }
+  .stat-mini .val {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    margin-bottom: 2px;
+  }
+  .stat-mini .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  /* ─── FILTER BAR ─── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .filter-btn.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+
+  /* ─── COMPARISON TABLE ─── */
+  .comp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+  }
+  .comp-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .comp-table td {
+    padding: 14px 16px;
+    background: var(--bg);
+    font-size: 14px;
+  }
+  .comp-table tr td:first-child { border-radius: 10px 0 0 10px; font-weight: 600; }
+  .comp-table tr td:last-child { border-radius: 0 10px 10px 0; }
+  .comp-table .bar-cell {
+    position: relative;
+    min-width: 120px;
+  }
+  .comp-table .bar-bg {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .comp-table .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    background: var(--deep);
+    color: rgba(255,255,255,0.4);
+    padding: 32px 48px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer a { color: var(--mint); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* ─── LOADING ─── */
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--deep);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    transition: opacity 0.6s, visibility 0.6s;
+  }
+  .loading-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loader {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--coral);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+  }
+
+  /* ─── TOOLTIP ─── */
+  .tooltip-container {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+  }
+  .tooltip-container .tip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--deep);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .tooltip-container:hover .tip { visibility: visible; opacity: 1; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .nav, .hero-content, .main, .footer { padding-left: 20px; padding-right: 20px; }
+    .nav-pills { display: none; }
+    .hero h1 { font-size: 32px; }
+    .kf-bar { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 500px) {
+    .kf-bar { grid-template-columns: 1fr; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div class="loading-overlay" id="loader">
+  <div class="loader"></div>
+  <div class="loading-text">Fetching latest data from Statistics Finland…</div>
+</div>
+
+<!-- HERO / HEADER -->
+<header class="hero">
+  <nav class="nav">
+    <div class="nav-logo">
+      <div class="flag"></div>
+      <span>Työllisyys</span>
+    </div>
+    <div class="nav-pills">
+      <button class="nav-pill active" onclick="showSection('overview')">Overview</button>
+      <button class="nav-pill" onclick="showSection('trends')">Trends</button>
+      <button class="nav-pill" onclick="showSection('demographics')">Demographics</button>
+      <button class="nav-pill" onclick="showSection('compare')">Compare</button>
+    </div>
+  </nav>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span> Live data from Tilastokeskus</div>
+    <h1>Finland's <em>Employment</em><br>at a Glance</h1>
+    <p>Real-time labour force statistics from Statistics Finland's open data. Explore employment rates, unemployment trends, and demographic breakdowns.</p>
+  </div>
+
+  <!-- KEY FIGURES -->
+  <div class="kf-bar">
+    <div class="kf-item">
+      <span class="kf-label">Employment Rate (20–64)</span>
+      <span class="kf-value mint" id="kf-emp-rate">—</span>
+      <span class="kf-sub" id="kf-emp-period">Loading…</span>
+    </div>
+    <div class="kf-item">
+      <span class="kf-label">Employment Rate Trend</span>
+      <span class="kf-value sun" id="kf-emp-trend">—</span>
+      <span class="kf-sub">Seasonally adjusted</span>
+    </div>
+    <div class="kf-item">
+      <span class="kf-label">Unemployment Rate (15–74)</span>
+      <span class="kf-value coral" id="kf-unemp-rate">—</span>
+      <span class="kf-sub" id="kf-unemp-period">Loading…</span>
+    </div>
+    <div class="kf-item">
+      <span class="kf-label">Unemployment Trend</span>
+      <span class="kf-value lilac" id="kf-unemp-trend">—</span>
+      <span class="kf-sub">Trend estimate</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- SECTION: Overview -->
+  <div id="section-overview">
+    <div style="margin-top:12px; margin-bottom:32px;">
+      <h2 class="section-title">Monthly Overview</h2>
+      <p class="section-sub">Key labour force indicators over the most recent months</p>
+    </div>
+
+    <div class="stat-row" id="stat-row-overview">
+      <div class="stat-mini">
+        <div class="icon mint">👤</div>
+        <div class="val" id="sm-employed">—</div>
+        <div class="lbl">Employed (1000s)</div>
+      </div>
+      <div class="stat-mini">
+        <div class="icon coral">📉</div>
+        <div class="val" id="sm-unemployed">—</div>
+        <div class="lbl">Unemployed (1000s)</div>
+      </div>
+      <div class="stat-mini">
+        <div class="icon sun">👥</div>
+        <div class="val" id="sm-labour">—</div>
+        <div class="lbl">Labour Force (1000s)</div>
+      </div>
+      <div class="stat-mini">
+        <div class="icon lilac">🏠</div>
+        <div class="val" id="sm-outside">—</div>
+        <div class="lbl">Outside Labour Force</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag mint">Employment</span>
+        <h3>Employment Rate (20–64)</h3>
+        <p class="card-desc">Monthly rate with trend line</p>
+        <canvas id="chart-emp-rate" height="220"></canvas>
+      </div>
+      <div class="card">
+        <span class="card-tag coral">Unemployment</span>
+        <h3>Unemployment Rate (15–74)</h3>
+        <p class="card-desc">Monthly rate with trend line</p>
+        <canvas id="chart-unemp-rate" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Trends -->
+  <div id="section-trends" style="display:none;">
+    <div style="margin-top:12px; margin-bottom:32px;">
+      <h2 class="section-title">Long-Term Trends</h2>
+      <p class="section-sub">Employment and unemployment trends from 2010 to present</p>
+    </div>
+
+    <div class="filter-bar" id="trend-range-filter">
+      <button class="filter-btn" data-range="36" onclick="setTrendRange(36, this)">3 Years</button>
+      <button class="filter-btn" data-range="60" onclick="setTrendRange(60, this)">5 Years</button>
+      <button class="filter-btn active" data-range="120" onclick="setTrendRange(120, this)">10 Years</button>
+      <button class="filter-btn" data-range="0" onclick="setTrendRange(0, this)">All</button>
+    </div>
+
+    <div class="grid-2">
+      <div class="card full-card">
+        <span class="card-tag navy">Combined View</span>
+        <h3>Employment vs Unemployment Rate</h3>
+        <p class="card-desc">Trend-adjusted rates over time</p>
+        <canvas id="chart-combined-trend" height="160"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag sun">Labour Force</span>
+        <h3>Labour Force Participation</h3>
+        <p class="card-desc">Total labour force in thousands</p>
+        <canvas id="chart-labour-force" height="220"></canvas>
+      </div>
+      <div class="card">
+        <span class="card-tag lilac">Youth</span>
+        <h3>Youth Unemployment (15–24)</h3>
+        <p class="card-desc">Trend estimate for young adults</p>
+        <canvas id="chart-youth-unemp" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Demographics -->
+  <div id="section-demographics" style="display:none;">
+    <div style="margin-top:12px; margin-bottom:32px;">
+      <h2 class="section-title">Demographics</h2>
+      <p class="section-sub">Employment by gender and age group — annual averages</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <span class="card-tag coral">Gender</span>
+        <h3>Employment Rate by Gender</h3>
+        <p class="card-desc">Annual average, ages 20–64</p>
+        <canvas id="chart-gender" height="240"></canvas>
+      </div>
+      <div class="card">
+        <span class="card-tag mint">Age Groups</span>
+        <h3>Employment Rate by Age</h3>
+        <p class="card-desc">Latest annual averages</p>
+        <canvas id="chart-age" height="240"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card full-card">
+        <span class="card-tag sun">Breakdown</span>
+        <h3>Labour Market Status by Age Group</h3>
+        <p class="card-desc">Share of employed, unemployed, and outside labour force</p>
+        <canvas id="chart-status-age" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Compare -->
+  <div id="section-compare" style="display:none;">
+    <div style="margin-top:12px; margin-bottom:32px;">
+      <h2 class="section-title">Year-on-Year</h2>
+      <p class="section-sub">Compare key metrics across recent years</p>
+    </div>
+
+    <div class="card" style="margin-bottom:28px;">
+      <span class="card-tag navy">Comparison</span>
+      <h3>Annual Employment &amp; Unemployment Rates</h3>
+      <p class="card-desc">Side-by-side yearly averages</p>
+      <canvas id="chart-yoy" height="200"></canvas>
+    </div>
+
+    <div class="card">
+      <span class="card-tag lilac">Employment Types</span>
+      <h3>Employment Contracts Overview</h3>
+      <p class="card-desc">Full-time vs part-time, permanent vs temporary</p>
+      <table class="comp-table" id="contract-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Total Employees (1000s)</th>
+            <th>Permanent %</th>
+            <th style="min-width:140px;">Permanent Share</th>
+            <th>Temporary %</th>
+          </tr>
+        </thead>
+        <tbody id="contract-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>Data: <a href="https://stat.fi/fi/tilasto/tyti" target="_blank">Tilastokeskus — Työvoimatutkimus</a> (CC BY 4.0)</div>
+  <div>Last updated: <span id="last-updated">—</span></div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA & CONFIG
+// ═══════════════════════════════════════════
+const API = 'https://pxdata.stat.fi/PXWeb/api/v1/en/StatFin';
+const chartInstances = {};
+let allTrendData = null;
+let trendRange = 120;
+
+// Chart.js global defaults
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#7B8794';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+Chart.defaults.elements.line.tension = 0.35;
+Chart.defaults.elements.point.radius = 0;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.animation.duration = 1200;
+
+// ─── Navigation ───
+function showSection(id) {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('section-' + id).style.display = 'block';
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ─── API FETCH HELPER ───
+async function fetchPx(table, query) {
+  const url = `${API}/${table}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, response: { format: 'json' } })
+  });
+  if (!resp.ok) throw new Error(`API ${resp.status}`);
+  return resp.json();
+}
+
+// ─── Parse PxWeb JSON response ───
+function parsePx(data) {
+  const cols = data.columns;
+  return data.data.map(row => {
+    const obj = {};
+    row.key.forEach((k, i) => obj[cols[i].code] = k);
+    row.values.forEach((v, i) => obj['value_' + i] = v === '..' ? null : parseFloat(v));
+    return obj;
+  });
+}
+
+// ═══════════════════════════════════════════
+//  DATA FETCHES
+// ═══════════════════════════════════════════
+
+// 1. Key indicators (trend data, table 135z)
+async function fetchTrendData() {
+  const query = [
+    { code: "Kuukausi", selection: { filter: "top", values: ["192"] } },
+    { code: "Tiedot", selection: { filter: "item", values: [
+      "Tyollisyysaste_2064",        // Emp rate 20-64
+      "Tyollisyysaste_2064_trend",   // Emp rate 20-64 trend
+      "Tyottomyysaste_1574",         // Unemp rate 15-74
+      "Tyottomyysaste_1574_trend",   // Unemp rate 15-74 trend
+      "Tyollisyysaste_1564",         // Emp rate 15-64
+      "Tyollisyysaste_1564_trend",   // Emp rate 15-64 trend
+      "Tyottomyysaste_1524_trend"    // Youth unemp trend
+    ]}}
+  ];
+  const data = await fetchPx('statfin_tyti_pxt_135z.px', query);
+  return parsePx(data);
+}
+
+// 2. Monthly population data (table 135y) for overview numbers
+async function fetchMonthlyPop() {
+  const query = [
+    { code: "Kuukausi", selection: { filter: "top", values: ["24"] } },
+    { code: "Sukupuoli", selection: { filter: "item", values: ["SSS"] } },
+    { code: "Ikäluokka", selection: { filter: "item", values: ["15-74"] } },
+    { code: "Tiedot", selection: { filter: "item", values: [
+      "vaesto", "tyovoima", "tyolliset", "tyottomat",
+      "tyovoiman_ulkop", "tyollisyysaste", "tyottomyysaste", "tyovoimaosuus"
+    ]}}
+  ];
+  const data = await fetchPx('statfin_tyti_pxt_135y.px', query);
+  return parsePx(data);
+}
+
+// 3. Gender data (annual) for demographics
+async function fetchGenderData() {
+  const query = [
+    { code: "Kuukausi", selection: { filter: "top", values: ["36"] } },
+    { code: "Sukupuoli", selection: { filter: "item", values: ["1", "2"] } },
+    { code: "Ikäluokka", selection: { filter: "item", values: ["20-64"] } },
+    { code: "Tiedot", selection: { filter: "item", values: ["tyollisyysaste"] } }
+  ];
+  const data = await fetchPx('statfin_tyti_pxt_135y.px', query);
+  return parsePx(data);
+}
+
+// 4. Age group data (annual, table 137h quarterly)
+async function fetchAgeData() {
+  const query = [
+    { code: "Vuosineljännes", selection: { filter: "top", values: ["8"] } },
+    { code: "Sukupuoli", selection: { filter: "item", values: ["SSS"] } },
+    { code: "Ikäluokka", selection: { filter: "item", values: [
+      "15-24", "25-34", "35-44", "45-54", "55-64"
+    ] } },
+    { code: "Tiedot", selection: { filter: "item", values: ["tyollisyysaste", "tyottomyysaste"] } }
+  ];
+  const data = await fetchPx('statfin_tyti_pxt_137h.px', query);
+  return parsePx(data);
+}
+
+// 5. Contract type data (annual, table 11pk)
+async function fetchContractData() {
+  const query = [
+    { code: "Vuosi", selection: { filter: "top", values: ["6"] } },
+    { code: "Sukupuoli", selection: { filter: "item", values: ["SSS"] } },
+    { code: "Tiedot", selection: { filter: "item", values: [
+      "palkansaajat_yht",
+      "jatkuva_osuus",
+      "maaraaikainen_osuus"
+    ]}}
+  ];
+  const data = await fetchPx('statfin_tyti_pxt_11pk.px', query);
+  return parsePx(data);
+}
+
+// ═══════════════════════════════════════════
+//  CHART BUILDERS
+// ═══════════════════════════════════════════
+
+function makeChart(id, config) {
+  if (chartInstances[id]) chartInstances[id].destroy();
+  const ctx = document.getElementById(id).getContext('2d');
+  chartInstances[id] = new Chart(ctx, config);
+  return chartInstances[id];
+}
+
+function fmtMonth(m) {
+  // "2025M12" → "Dec 25"
+  const parts = m.match(/(\d{4})M(\d{2})/);
+  if (!parts) return m;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(parts[2])-1] + ' ' + parts[1].slice(2);
+}
+
+function fmtQuarter(q) {
+  return q.replace(/(\d{4})Q(\d)/, '$1 Q$2');
+}
+
+// ─── Render Trend Charts ───
+function renderTrendCharts(rows, rangeMonths) {
+  let data = rows;
+  if (rangeMonths > 0) data = rows.slice(-rangeMonths);
+
+  const labels = [...new Set(data.map(r => r.Kuukausi))];
+  const byMonth = {};
+  data.forEach(r => {
+    if (!byMonth[r.Kuukausi]) byMonth[r.Kuukausi] = {};
+    byMonth[r.Kuukausi][r.Tiedot] = r.value_0;
+  });
+
+  const empRate = labels.map(l => byMonth[l]?.['Tyollisyysaste_2064'] ?? null);
+  const empTrend = labels.map(l => byMonth[l]?.['Tyollisyysaste_2064_trend'] ?? null);
+  const unempRate = labels.map(l => byMonth[l]?.['Tyottomyysaste_1574'] ?? null);
+  const unempTrend = labels.map(l => byMonth[l]?.['Tyottomyysaste_1574_trend'] ?? null);
+  const youthTrend = labels.map(l => byMonth[l]?.['Tyottomyysaste_1524_trend'] ?? null);
+  const empRate1564 = labels.map(l => byMonth[l]?.['Tyollisyysaste_1564'] ?? null);
+  const empTrend1564 = labels.map(l => byMonth[l]?.['Tyollisyysaste_1564_trend'] ?? null);
+
+  const shortLabels = labels.map(fmtMonth);
+  const sparseLabels = shortLabels.map((l, i) => i % Math.max(1, Math.floor(labels.length / 12)) === 0 ? l : '');
+
+  // Overview: Emp Rate card
+  makeChart('chart-emp-rate', {
+    type: 'line',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: 'Actual', data: empRate, borderColor: '#4ECDC4', backgroundColor: 'rgba(78,205,196,0.08)', fill: true, borderWidth: 1.5 },
+        { label: 'Trend', data: empTrend, borderColor: '#FFE66D', borderWidth: 2.5, borderDash: [] }
+      ]
+    },
+    options: { responsive: true, scales: { x: { ticks: { callback: (v,i) => sparseLabels[i], maxRotation: 0 }, grid: { display: false } }, y: { min: Math.min(...empRate.filter(Boolean)) - 3, grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+
+  // Overview: Unemp Rate card
+  makeChart('chart-unemp-rate', {
+    type: 'line',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: 'Actual', data: unempRate, borderColor: '#FF6B6B', backgroundColor: 'rgba(255,107,107,0.08)', fill: true, borderWidth: 1.5 },
+        { label: 'Trend', data: unempTrend, borderColor: '#C77DFF', borderWidth: 2.5 }
+      ]
+    },
+    options: { responsive: true, scales: { x: { ticks: { callback: (v,i) => sparseLabels[i], maxRotation: 0 }, grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+
+  // Trends: Combined
+  makeChart('chart-combined-trend', {
+    type: 'line',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: 'Employment Trend (20-64)', data: empTrend, borderColor: '#4ECDC4', borderWidth: 2.5, yAxisID: 'y' },
+        { label: 'Unemployment Trend (15-74)', data: unempTrend, borderColor: '#FF6B6B', borderWidth: 2.5, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { ticks: { callback: (v,i) => sparseLabels[i], maxRotation: 0 }, grid: { display: false } },
+        y: { type: 'linear', position: 'left', title: { display: true, text: 'Emp %' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Unemp %' }, grid: { display: false } }
+      },
+      plugins: { legend: { position: 'top' } }
+    }
+  });
+
+  // Trends: Labour Force (use emp rate 15-64 as proxy)
+  makeChart('chart-labour-force', {
+    type: 'line',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: 'Rate (15-64)', data: empRate1564, borderColor: '#FFE66D', backgroundColor: 'rgba(255,230,109,0.1)', fill: true, borderWidth: 2 },
+        { label: 'Trend', data: empTrend1564, borderColor: '#2C3E6B', borderWidth: 2, borderDash: [6,3] }
+      ]
+    },
+    options: { responsive: true, scales: { x: { ticks: { callback: (v,i) => sparseLabels[i], maxRotation: 0 }, grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+
+  // Trends: Youth
+  makeChart('chart-youth-unemp', {
+    type: 'line',
+    data: {
+      labels: shortLabels,
+      datasets: [
+        { label: 'Youth Unemp Trend (15-24)', data: youthTrend, borderColor: '#C77DFF', backgroundColor: 'rgba(199,125,255,0.1)', fill: true, borderWidth: 2.5 }
+      ]
+    },
+    options: { responsive: true, scales: { x: { ticks: { callback: (v,i) => sparseLabels[i], maxRotation: 0 }, grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+
+  // Set key figures from latest data
+  const latest = labels[labels.length - 1];
+  const lm = byMonth[latest];
+  if (lm) {
+    document.getElementById('kf-emp-rate').textContent = (lm['Tyollisyysaste_2064'] ?? '—') + '%';
+    document.getElementById('kf-emp-trend').textContent = (lm['Tyollisyysaste_2064_trend'] ?? '—') + '%';
+    document.getElementById('kf-unemp-rate').textContent = (lm['Tyottomyysaste_1574'] ?? '—') + '%';
+    document.getElementById('kf-unemp-trend').textContent = (lm['Tyottomyysaste_1574_trend'] ?? '—') + '%';
+    document.getElementById('kf-emp-period').textContent = fmtMonth(latest);
+    document.getElementById('kf-unemp-period').textContent = fmtMonth(latest);
+  }
+}
+
+function setTrendRange(months, btn) {
+  document.querySelectorAll('#trend-range-filter .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  trendRange = months;
+  if (allTrendData) renderTrendCharts(allTrendData, months);
+}
+
+// ─── Render Overview Mini Stats ───
+function renderOverviewStats(rows) {
+  // Get latest month
+  const months = [...new Set(rows.map(r => r.Kuukausi))].sort();
+  const latest = months[months.length - 1];
+  const lm = {};
+  rows.filter(r => r.Kuukausi === latest).forEach(r => { lm[r.Tiedot] = r.value_0; });
+
+  document.getElementById('sm-employed').textContent = lm['tyolliset'] != null ? Math.round(lm['tyolliset']) : '—';
+  document.getElementById('sm-unemployed').textContent = lm['tyottomat'] != null ? Math.round(lm['tyottomat']) : '—';
+  document.getElementById('sm-labour').textContent = lm['tyovoima'] != null ? Math.round(lm['tyovoima']) : '—';
+  document.getElementById('sm-outside').textContent = lm['tyovoiman_ulkop'] != null ? Math.round(lm['tyovoiman_ulkop']) : '—';
+}
+
+// ─── Render Gender Chart ───
+function renderGenderChart(rows) {
+  const months = [...new Set(rows.map(r => r.Kuukausi))].sort();
+  const maleData = months.map(m => rows.find(r => r.Kuukausi === m && r.Sukupuoli === '1')?.value_0 ?? null);
+  const femaleData = months.map(m => rows.find(r => r.Kuukausi === m && r.Sukupuoli === '2')?.value_0 ?? null);
+
+  makeChart('chart-gender', {
+    type: 'line',
+    data: {
+      labels: months.map(fmtMonth),
+      datasets: [
+        { label: 'Men', data: maleData, borderColor: '#2C3E6B', borderWidth: 2.5, backgroundColor: 'rgba(44,62,107,0.08)', fill: true },
+        { label: 'Women', data: femaleData, borderColor: '#FF6B6B', borderWidth: 2.5, backgroundColor: 'rgba(255,107,107,0.08)', fill: true }
+      ]
+    },
+    options: { responsive: true, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+}
+
+// ─── Render Age Chart ───
+function renderAgeCharts(rows) {
+  const quarters = [...new Set(rows.map(r => r.Vuosineljännes))].sort();
+  const ages = ['15-24','25-34','35-44','45-54','55-64'];
+  const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#C77DFF','#2C3E6B'];
+
+  // Latest quarter employment by age
+  const latest = quarters[quarters.length - 1];
+  const empByAge = ages.map(a => rows.find(r => r.Vuosineljännes === latest && r.Ikäluokka === a && r.Tiedot === 'tyollisyysaste')?.value_0 ?? 0);
+  const unempByAge = ages.map(a => rows.find(r => r.Vuosineljännes === latest && r.Ikäluokka === a && r.Tiedot === 'tyottomyysaste')?.value_0 ?? 0);
+
+  makeChart('chart-age', {
+    type: 'bar',
+    data: {
+      labels: ages,
+      datasets: [
+        { label: 'Employment %', data: empByAge, backgroundColor: colors.map(c => c + '99'), borderColor: colors, borderWidth: 1.5, borderRadius: 8 }
+      ]
+    },
+    options: { responsive: true, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { display: false } } }
+  });
+
+  // Stacked status chart
+  const outsideByAge = ages.map((a, i) => Math.max(0, 100 - empByAge[i] - unempByAge[i]));
+  makeChart('chart-status-age', {
+    type: 'bar',
+    data: {
+      labels: ages,
+      datasets: [
+        { label: 'Employed', data: empByAge, backgroundColor: '#4ECDC4', borderRadius: 4 },
+        { label: 'Unemployed', data: unempByAge, backgroundColor: '#FF6B6B', borderRadius: 4 },
+        { label: 'Outside LF', data: outsideByAge, backgroundColor: '#E8E6E1', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, max: 100, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v + '%' } }
+      },
+      plugins: { legend: { position: 'top' } }
+    }
+  });
+}
+
+// ─── Render YoY Chart ───
+function renderYoYChart(trendRows) {
+  // Get yearly averages from trend data
+  const byYear = {};
+  trendRows.forEach(r => {
+    const yr = r.Kuukausi.slice(0, 4);
+    if (!byYear[yr]) byYear[yr] = { emp: [], unemp: [] };
+    if (r.Tiedot === 'Tyollisyysaste_2064_trend' && r.value_0 != null) byYear[yr].emp.push(r.value_0);
+    if (r.Tiedot === 'Tyottomyysaste_1574_trend' && r.value_0 != null) byYear[yr].unemp.push(r.value_0);
+  });
+
+  const years = Object.keys(byYear).sort().slice(-8);
+  const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : null;
+  const empAvg = years.map(y => parseFloat(avg(byYear[y].emp)));
+  const unempAvg = years.map(y => parseFloat(avg(byYear[y].unemp)));
+
+  makeChart('chart-yoy', {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [
+        { label: 'Employment Rate (trend)', data: empAvg, backgroundColor: '#4ECDC4', borderRadius: 8, barPercentage: 0.5 },
+        { label: 'Unemployment Rate (trend)', data: unempAvg, backgroundColor: '#FF6B6B', borderRadius: 8, barPercentage: 0.5 }
+      ]
+    },
+    options: { responsive: true, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' } } }, plugins: { legend: { position: 'top' } } }
+  });
+}
+
+// ─── Render Contract Table ───
+function renderContractTable(rows) {
+  const years = [...new Set(rows.map(r => r.Vuosi))].sort();
+  const tbody = document.getElementById('contract-tbody');
+  const colors = ['#4ECDC4', '#FFE66D', '#C77DFF', '#FF6B6B', '#A8DADC', '#2C3E6B'];
+
+  tbody.innerHTML = years.map((yr, i) => {
+    const total = rows.find(r => r.Vuosi === yr && r.Tiedot === 'palkansaajat_yht')?.value_0 ?? '—';
+    const perm = rows.find(r => r.Vuosi === yr && r.Tiedot === 'jatkuva_osuus')?.value_0 ?? 0;
+    const temp = rows.find(r => r.Vuosi === yr && r.Tiedot === 'maaraaikainen_osuus')?.value_0 ?? 0;
+    const color = colors[i % colors.length];
+    return `<tr>
+      <td>${yr}</td>
+      <td>${total != null ? Math.round(total) : '—'}</td>
+      <td>${perm}%</td>
+      <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${perm}%; background:${color}"></div></div></td>
+      <td>${temp}%</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+
+async function init() {
+  const loader = document.getElementById('loader');
+  try {
+    // Fetch all data in parallel
+    const [trendData, popData, genderData, ageData, contractData] = await Promise.allSettled([
+      fetchTrendData(),
+      fetchMonthlyPop(),
+      fetchGenderData(),
+      fetchAgeData(),
+      fetchContractData()
+    ]);
+
+    // Trend data
+    if (trendData.status === 'fulfilled') {
+      allTrendData = trendData.value;
+      renderTrendCharts(allTrendData, trendRange);
+      renderYoYChart(allTrendData);
+    }
+
+    // Overview stats
+    if (popData.status === 'fulfilled') {
+      renderOverviewStats(popData.value);
+    }
+
+    // Gender
+    if (genderData.status === 'fulfilled') {
+      renderGenderChart(genderData.value);
+    }
+
+    // Age
+    if (ageData.status === 'fulfilled') {
+      renderAgeCharts(ageData.value);
+    }
+
+    // Contracts
+    if (contractData.status === 'fulfilled') {
+      renderContractTable(contractData.value);
+    }
+
+    document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-FI', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+  } catch (err) {
+    console.error('Init error:', err);
+  } finally {
+    setTimeout(() => loader.classList.add('hidden'), 600);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
